@@ -1,5 +1,5 @@
 const todoRepository = require('./todoRepository');
-const todoValidator = require('./todoValidator');
+const Todo = require('./todoSchema');
 
 class TodoService {
 
@@ -12,18 +12,40 @@ class TodoService {
         return todoRepository.findById(id);
     }
 
-    editTodo(id, todo){
-        //todoValidator.validateModel(todo);
-        return todoRepository.update({_id: id}, todo);
+    editTodo(id, todoData){
+        var promise = new Promise(function(resolve, reject) {
+            let todo = new Todo(todoData);
+            let errors = todo.validateSync();
+
+            if (errors) {
+                reject(errors);
+            } else {
+                let saved = todoRepository.update({_id: id}, todoData);
+                resolve(saved);
+            }
+        })
+
+        return promise;
     }
 
     deleteTodo(id){
         return todoRepository.delete({_id: id});
     }
 
-    addTodo(todo){
-        //todoValidator.validateModel(todo);
-        return todoRepository.add(todo);
+    addTodo(todoData){
+        var promise = new Promise(function(resolve, reject) {
+            let todo = new Todo(todoData);
+            let errors = todo.validateSync();
+
+            if (errors) {
+                reject(errors);
+            } else {
+                let saved = todoRepository.add(todoData);
+                resolve(saved);
+            }
+        })
+
+        return promise;
     }
 }
 

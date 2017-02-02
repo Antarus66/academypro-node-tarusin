@@ -15,10 +15,8 @@ todoRouter.post('/', (req, res, next) => {
     todoService.addTodo(req.body).then((todo) => {
         res.status(201).send(todo);
     }).catch((err) => {
-        console.log(err);
-
-        if (err.errors) {
-            res.status(422).send(err.errors);
+        if (err.name === 'ValidationError') {
+            res.status(422).send(err);
         } else {
             res.status(400).end();
         }
@@ -37,8 +35,8 @@ todoRouter.put('/:id', (req, res, next) => {
     todoService.editTodo(req.params.id, req.body).then(() => {
         res.end();
     }).catch((err) => {
-        if (err.errors) {
-            res.status(422).send(err.errors);
+        if (err.name === 'ValidationError') {
+            res.status(422).send(err);
         } else {
             res.status(400).end();
         }
