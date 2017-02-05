@@ -7,6 +7,7 @@
 var app = require('../app/');
 var debug = require('debug')('express:server');
 var http = require('http');
+var sockets = require('socket.io');
 
 /**
  * Get port from environment and store in Express.
@@ -22,12 +23,25 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
+ * Integrate sockets
+ */
+
+var io = sockets.listen(server);
+
+/**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(port, function (socket) {
+    console.log('socket.io is listening on *:' + port);
+});
+
 server.on('error', onError);
 server.on('listening', onListening);
+
+io.on('connection', function(socket){
+  console.log('A user connected');
+});
 
 /**
  * Normalize a port into a number, string, or false.

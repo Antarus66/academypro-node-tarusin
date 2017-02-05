@@ -7,8 +7,16 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
+//// integrate sockets
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
 const initializeViewRoutes = require('./routes/viewRoutes');
 const initializeAPIRoutes = require('./routes/apiRoutes');
+
+io.on('connection', function(socket){
+    console.log('A user connected');
+});
 
 var initializeDB = require('./db/db');
 initializeDB();
