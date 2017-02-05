@@ -31,6 +31,20 @@
         todosList.push(todo);
     }
 
+    function updateEditedTodo(todo) {
+        var todoContainer = document.getElementById(todo._id);
+
+        if (!todoContainer) {
+            return;
+        }
+
+        var title = todoContainer.getElementsByClassName('todo-title')[0];
+        title.value = todo.title;
+
+        var done = todoContainer.getElementsByClassName('todo-done')[0];
+        done.checked = todo.done;
+    }
+
     function removeRenderedTodo(_id) {
         var todoContainer = document.getElementById(_id);
 
@@ -101,7 +115,7 @@
                             appendTodo(todo);
                         }
                     });
-                    
+
                     todoContainer.remove();
                 }
             } else if (event.target.className === 'delete-todo'){
@@ -169,18 +183,25 @@
 
     function bindSocketHandlers() {
         socket.on('added', handleAdded);
-
-        socket.on('edited', function (data) {
-            console.log('edited');
-            console.log(data);
-        });
-
+        socket.on('edited', handleEdited);
         socket.on('removed', handleRemoved);
 
         function handleAdded(todoData) {
             if (!isRendered(todoData._id)) {
                 appendTodo(todoData);
             }
+        }
+
+        function handleEdited(editedData) {
+            // update in list
+            todosList = todosList.filter(function(todoData) {
+                return todoData._id !== editedData._id;
+            });
+
+            todosList.push(editedData);
+
+            // update in DOM
+            updateEditedTodo(editedData);
         }
 
         function handleRemoved(todoData) {

@@ -9,7 +9,6 @@ class TodoService {
     }
 
     getTodoById(id){
-        console.log(id);
         return todoRepository.findById(id);
     }
 
@@ -21,10 +20,13 @@ class TodoService {
             if (errors) {
                 reject(errors);
             } else {
-                let edited = todoRepository.update({_id: id}, todoData);
-                io.emit('edited', todoData);
-
-                resolve(edited);
+                todoRepository.update({_id: id}, todoData)
+                    .then(function () {
+                        todoData._id = id;
+                        io.emit('edited', todoData);
+                        resolve(todoData);
+                    }
+                );
             }
         });
 
@@ -49,7 +51,6 @@ class TodoService {
                 // Using a promise from Mongoose query.exec()
                 todoRepository.add(todoData).then(function (savedTodo) {
                     io.emit('added', savedTodo);
-
                     resolve(savedTodo);
                 });
             }
