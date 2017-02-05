@@ -76,6 +76,7 @@
             if (event.target.className === 'save-todo'){
                 var todoContainer = event.target.parentNode;
                 var id = todoContainer.id;
+
                 if (id){
                     sendEditTodoReq(todoContainer, id);
                 } else {
@@ -84,7 +85,7 @@
                             return response.json();
                         }
                     }).then(function(todo){
-                        if (!isRendered(todo._id)) {
+                        if (todo && todo._id && !isRendered(todo._id)) {
                             appendTodo(todo);
                         }
                     });
