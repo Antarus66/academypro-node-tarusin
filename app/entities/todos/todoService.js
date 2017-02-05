@@ -33,7 +33,7 @@ class TodoService {
 
     deleteTodo(id){
         let removed = todoRepository.delete({_id: id});
-        io.emit('removed', {id: id});
+        io.emit('removed', {_id: id});
 
         return removed;
     }

@@ -14,7 +14,6 @@
             return response.json();
         }
     }).then(function(todos){
-        todosList = todos;
         renderTodos(todos);
         bindSocketHandlers();
     });
@@ -29,6 +28,19 @@
 
     function appendTodo(todo) {
         $$todosContainer.appendChild(renderTodo(todo));
+        todosList.push(todo);
+    }
+
+    function removeRenderedTodo(_id) {
+        var todoContainer = document.getElementById(_id);
+
+        if (todoContainer) {
+            todoContainer.remove();
+        }
+
+        todosList = todosList.filter(function(todoData) {
+            return todoData._id !== _id;
+        });
     }
 
     function renderTodo(todo = {}){
@@ -89,6 +101,7 @@
                             appendTodo(todo);
                         }
                     });
+                    
                     todoContainer.remove();
                 }
             } else if (event.target.className === 'delete-todo'){
@@ -100,7 +113,9 @@
                         return;
                     }
                 }).then(function(){
-                    todoContainer.remove();
+                    if (isRendered(id)) {
+                        removeRenderedTodo(id);
+                    }
                 });
             }
         });
@@ -160,17 +175,18 @@
             console.log(data);
         });
 
-        socket.on('removed', function (data) {
-            console.log('removed');
-            console.log(data);
-        });
+        socket.on('removed', handleRemoved);
 
         function handleAdded(todoData) {
             if (!isRendered(todoData._id)) {
-                todosList.push(todoData);
                 appendTodo(todoData);
             }
+        }
 
+        function handleRemoved(todoData) {
+            if (isRendered(todoData._id)) {
+                removeRenderedTodo(todoData._id);
+            }
         }
     }
 
