@@ -31,7 +31,7 @@
         todosList.push(todo);
     }
 
-    function updateEditedTodo(todo) {
+    function updateRenderedTodo(todo) {
         var todoContainer = document.getElementById(todo._id);
 
         if (!todoContainer) {
@@ -104,19 +104,25 @@
                 var id = todoContainer.id;
 
                 if (id){
-                    sendEditTodoReq(todoContainer, id);
-                } else {
-                    sendCreateTodoReq(todoContainer).then(function(response){
-                        if(response.ok) {
-                            return response.json();
-                        }
-                    }).then(function(todo){
-                        if (todo && todo._id && !isRendered(todo._id)) {
-                            appendTodo(todo);
+                    sendEditTodoReq(todoContainer, id).then(function (response) {
+                        return response.json();
+                    }).then(function(data){
+                        if (data.errors) {
+                            showErrors(data.errors, todoContainer);
                         }
                     });
-
-                    todoContainer.remove();
+                } else {
+                    sendCreateTodoReq(todoContainer).then(function(response){
+                        return response.json();
+                    }).then(function(data){
+                        if (data.errors) {
+                            showErrors(data.errors, todoContainer);
+                        } else if (isRendered(data._id)) {
+                            todoContainer.remove();
+                        } else if (data && data._id) {
+                            appendTodo(data);
+                        }
+                    });
                 }
             } else if (event.target.className === 'delete-todo'){
                 var todoContainer = event.target.parentNode;
@@ -134,6 +140,22 @@
             }
         });
 
+        function showErrors(errors, container) {
+            var message = '';
+
+            for (var field in errors) {
+                message += errors[field].message + ' ';
+            }
+
+            var $errorMessage = document.createElement('span');
+            $errorMessage.innerText = message;
+            $errorMessage.className = 'error-message';
+            container.appendChild($errorMessage);
+
+            setTimeout(function () {
+                $errorMessage.remove();
+            }, 2000);
+        }
     }
 
     function sendEditTodoReq(todoContainer, id){
@@ -151,7 +173,7 @@
                 title: title,
                 done: done
             })
-        })
+        });
     }
 
     function sendDeleteTodoReq(id){
@@ -201,7 +223,7 @@
             todosList.push(editedData);
 
             // update in DOM
-            updateEditedTodo(editedData);
+            updateRenderedTodo(editedData);
         }
 
         function handleRemoved(todoData) {
