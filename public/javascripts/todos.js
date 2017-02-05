@@ -2,10 +2,14 @@ var $$addTodo = document.getElementById('add-todo');
 var $$todosContainer = document.getElementById('todos-container');
 
 var socket = io();
+
 socket.on('connect', function(){
     console.log('Connected to a socket');
 });
 
+socket.on('news', function (data) {
+    console.log(data);
+});
 
 fetch('/api/todo').then(function(response){
     if(response.ok) {
