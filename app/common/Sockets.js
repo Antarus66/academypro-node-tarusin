@@ -1,8 +1,11 @@
 var io = require('socket.io')();
 
 io.on('connection', function (socket) {
-    console.log('User is connected');
-    socket.emit('news', { hello: 'world' });
+    console.log('User ' + socket.id + ' connected');
+
+    socket.on('disconnect', function () {
+        console.log('User ' + socket.id + ' disconnected');
+    });
 });
 
 module.exports = io;

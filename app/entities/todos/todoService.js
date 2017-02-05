@@ -1,5 +1,6 @@
 const todoRepository = require('./todoRepository');
 const Todo = require('./todoSchema');
+const io = require('../../common/Sockets');
 
 class TodoService {
 
@@ -20,16 +21,21 @@ class TodoService {
             if (errors) {
                 reject(errors);
             } else {
-                let saved = todoRepository.update({_id: id}, todoData);
-                resolve(saved);
+                let edited = todoRepository.update({_id: id}, todoData);
+                io.emit('edited', todoData);
+
+                resolve(edited);
             }
-        })
+        });
 
         return promise;
     }
 
     deleteTodo(id){
-        return todoRepository.delete({_id: id});
+        let removed = todoRepository.delete({_id: id});
+        io.emit('removed', {id: id});
+
+        return removed;
     }
 
     addTodo(todoData){
@@ -40,10 +46,14 @@ class TodoService {
             if (errors) {
                 reject(errors);
             } else {
-                let saved = todoRepository.add(todoData);
-                resolve(saved);
+                // Using a promise from Mongoose query.exec()
+                todoRepository.add(todoData).then(function (savedTodo) {
+                    io.emit('added', savedTodo);
+
+                    resolve(savedTodo);
+                });
             }
-        })
+        });
 
         return promise;
     }
