@@ -1,6 +1,7 @@
 const todoRepository = require('./todoRepository');
 const Todo = require('./todoSchema');
 const io = require('../../common/Sockets');
+const todoValidator = require('./TodoValidator');
 
 class TodoService {
 
@@ -14,11 +15,11 @@ class TodoService {
 
     editTodo(id, todoData){
         var promise = new Promise(function(resolve, reject) {
-            let todo = new Todo(todoData);
-            let errors = todo.validateSync();
-
-            if (errors) {
-                reject(errors);
+            if (!todoValidator.validate(todoData)) {
+                reject({
+                    name: 'ValidationError',
+                    errors: todoValidator.getErrors()
+                });
             } else {
                 todoRepository.update({_id: id}, todoData)
                     .then(function () {
@@ -42,11 +43,11 @@ class TodoService {
 
     addTodo(todoData){
         var promise = new Promise(function(resolve, reject) {
-            let todo = new Todo(todoData);
-            let errors = todo.validateSync();
-
-            if (errors) {
-                reject(errors);
+            if (!todoValidator.validate(todoData)) {
+                reject({
+                    name: 'ValidationError',
+                    errors: todoValidator.getErrors()
+                });
             } else {
                 // Using a promise from Mongoose query.exec()
                 todoRepository.add(todoData).then(function (savedTodo) {
