@@ -9,7 +9,7 @@ class TodoValidator extends Validator{
         };
 
         Object.assign(this.errorMessages, {
-            nozrada: 'Зрада не пройде! Нам порібна перемога!'
+            nozrada: 'Zrada is not allowed! We need a victory!'
         });
     }
 

@@ -141,10 +141,16 @@
         });
 
         function showErrors(errors, container) {
+            debugger;
+
             var message = '';
 
             for (var field in errors) {
-                message += errors[field].message + ' ';
+                var fieldErrors = errors[field];
+
+                for (var i = 0; i < fieldErrors.length; i++) {
+                    message += fieldErrors[i] + ' ';
+                }
             }
 
             var $errorMessage = document.createElement('span');

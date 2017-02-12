@@ -9,7 +9,7 @@ const Todo = new mongoose.Schema({
             validator: (value) => {
                 return !(value.includes('зрада') || value.includes('zrada'));
             },
-            message: 'Зрада не пройде! Нам порібна перемога!'
+            message: 'Zrada is not allowed! We need a victory!'
         }
     },
     done: {
