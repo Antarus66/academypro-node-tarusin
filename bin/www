@@ -8,36 +8,57 @@ var app = require('../app/');
 var debug = require('debug')('express:server');
 var http = require('http');
 var io = require('../app/common/Sockets');
+var redis = require('socket.io-redis');
+var cluster = require('cluster');
+var numCPUs = require('os').cpus().length;
 
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '2222');
+var redisPort = normalizePort(process.env.REDIS_PORT || '6379');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+if (cluster.isMaster) {
+    console.log(`Master ${process.pid} is running`);
 
-/**
- * Integrate sockets
- */
+    // Fork workers.
+    for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
+    }
 
-io.attach(server);
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`worker ${worker.process.pid} died`);
+    });
+} else {
+    // Workers can share any TCP connection
+    // In this case it is an HTTP server
+    var server = http.createServer(app);
+    console.log(`Worker ${process.pid} started`);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+    /**
+     * Integrate sockets
+     */
 
-server.listen(port, function (socket) {
-    console.log('socket.io is listening on *:' + port);
-});
+    io.adapter(redis({ host: 'localhost', port: redisPort }));
+    io.attach(server);
 
-server.on('error', onError);
-server.on('listening', onListening);
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+
+    server.listen(port, function (socket) {
+        console.log('socket.io is listening on *:' + port);
+    });
+
+    server.on('error', onError);
+    server.on('listening', onListening);
+}
 
 /**
  * Normalize a port into a number, string, or false.
