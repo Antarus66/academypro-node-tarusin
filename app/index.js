@@ -5,6 +5,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const app = express();
+const helmet = require('helmet');
 
 const initializeViewRoutes = require('./routes/viewRoutes');
 const initializeAPIRoutes = require('./routes/apiRoutes');
@@ -18,6 +19,10 @@ app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(helmet());
+app.use(helmet.noCache());
+app.use(helmet.referrerPolicy());
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
