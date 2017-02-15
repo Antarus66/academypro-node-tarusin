@@ -1,18 +1,30 @@
 const io = require('../../common/Sockets');
+const childProcess = require('child_process');
 
 class MathService {
     getFibonacci(n, returnTransitional) {
-        var promise = new Promise(function(resolve, reject) {
-            var a = 1, b = 0, temp;
+        var promise = new Promise((resolve, reject) => {
+            var child = childProcess.fork(`${__dirname}/fibonacciWorker.js`);
+            child.on('message', (m) => {
+                if (!m.type || !m.data || !m.data.value) {
+                    reject({
+                        error: "WorkerError"
+                    });
+                }
 
-            while (n >= 0){
-                temp = a;
-                a = a + b;
-                b = temp;
-                n--;
-            }
+                if (m.type === 'done') {
+                    resolve(m.data.value);
+                }
 
-            resolve(b);
+            });
+
+            child.send({
+                type: 'start',
+                data: {
+                    n: n,
+                    returnTransitional: returnTransitional
+                }
+            });
         });
 
         return promise;
