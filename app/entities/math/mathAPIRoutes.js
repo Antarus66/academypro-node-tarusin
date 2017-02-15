@@ -4,7 +4,7 @@ const router = express.Router();
 const mathService = require('./mathService');
 
 router.get('/fibonacci', (req, res, next) => {
-    mathService.getFibonacci(100, 10)
+    mathService.getFibonacci(350, 10)
         .then((value) => {
             res.send({result: value});
         }).catch((err) => {

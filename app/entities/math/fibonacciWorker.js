@@ -18,6 +18,16 @@
             temp = a;
             a = a + b;
             b = temp;
+
+            if ((n % returnTransitional) === 0) {
+                process.send({
+                    type: 'intermediate',
+                    data: {
+                        value: b
+                    }
+                });
+            }
+
             n--;
         }
 

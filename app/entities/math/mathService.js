@@ -14,8 +14,9 @@ class MathService {
 
                 if (m.type === 'done') {
                     resolve(m.data.value);
+                } else if (m.type === 'intermediate') {
+                    io.emit('intermediate', m.data);
                 }
-
             });
 
             child.send({
