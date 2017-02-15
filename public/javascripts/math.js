@@ -41,7 +41,7 @@
         $$li.innerText = data.value;
         $$list.appendChild($$li);
 
-        console.log('New intemediate value ' + data.value);
+        console.log('New intermediate value ' + data.value);
     }
 
     function showDone(value) {
