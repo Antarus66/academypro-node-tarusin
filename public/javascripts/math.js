@@ -27,6 +27,7 @@
         });
 
         socket.on('intermediate', showIntermediate);
+        socket.on('done', showDone);
     }
 
     function showRes(value) {
@@ -41,5 +42,9 @@
         $$list.appendChild($$li);
 
         console.log('New intemediate value ' + data.value);
+    }
+
+    function showDone(value) {
+        console.log('Done: ' + value);
     }
 })();

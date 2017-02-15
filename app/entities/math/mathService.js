@@ -14,6 +14,7 @@ class MathService {
 
                 if (m.type === 'done') {
                     resolve(m.data.value);
+                    io.emit('done', m.data.value);
                 } else if (m.type === 'intermediate') {
                     io.emit('intermediate', m.data);
                 }
